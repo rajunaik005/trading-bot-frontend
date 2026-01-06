@@ -2,40 +2,79 @@
 <html>
 <head>
   <title>Trading Bot</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #f5f5f5;
+    }
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    select {
+      padding: 8px;
+      font-size: 16px;
+    }
+    table {
+      margin: auto;
+      border-collapse: collapse;
+      width: 80%;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    th {
+      background: #222;
+      color: white;
+    }
+  </style>
 </head>
-<body style="font-family: Arial; text-align: center;">
+
+<body>
 
   <h1>🤖 Trading Bot Control Panel</h1>
 
-  <p>Backend Status:</p>
-  <button onclick="check()">Check Status</button>
+  <h3>Select Market</h3>
+  <select id="market">
+    <option value="India">India</option>
+    <option value="Taiwan">Taiwan</option>
+  </select>
 
   <br><br>
 
-  <button onclick="start()">Start Bot</button>
-  <button onclick="stop()">Stop Bot</button>
+  <button onclick="startBot()">Start Bot</button>
+  <button onclick="stopBot()">Stop Bot</button>
+  <button onclick="loadTrades()">Show Trades</button>
 
   <p id="msg"></p>
 
-  <script>
-    const BASE = "https://trading-bot-backend-47q9.onrender.com";
+  <h2>📊 Paper Trades</h2>
+  <table id="tradeTable">
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Symbol</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-    function check() {
-      fetch(BASE)
-        .then(r => r.json())
-        .then(d => document.getElementById("msg").innerText = JSON.stringify(d));
-    }
+<script>
+  const BASE = "https://trading-bot-backend-47q9.onrender.com";
 
-    function start() {
-      fetch(BASE + "/start", { method: "POST" });
-      document.getElementById("msg").innerText = "Bot started";
-    }
+  function startBot() {
+    const market = document.getElementById("market").value;
+    fetch(`${BASE}/start/${market}`, { method: "POST" })
+      .then(r => r.json())
+      .then(d => document.getElementById("msg").innerText = d.status);
+  }
 
-    function stop() {
-      fetch(BASE + "/stop", { method: "POST" });
-      document.getElementById("msg").innerText = "Bot stopped";
-    }
-  </script>
-
-</body>
-</html>
+  function stopBot() {
+    fetch(
