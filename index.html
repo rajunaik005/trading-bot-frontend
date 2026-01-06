@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Trading Bot</title>
+</head>
+<body style="font-family: Arial; text-align: center;">
+
+  <h1>🤖 Trading Bot Control Panel</h1>
+
+  <p>Backend Status:</p>
+  <button onclick="check()">Check Status</button>
+
+  <br><br>
+
+  <button onclick="start()">Start Bot</button>
+  <button onclick="stop()">Stop Bot</button>
+
+  <p id="msg"></p>
+
+  <script>
+    const BASE = "https://trading-bot-backend-47q9.onrender.com";
+
+    function check() {
+      fetch(BASE)
+        .then(r => r.json())
+        .then(d => document.getElementById("msg").innerText = JSON.stringify(d));
+    }
+
+    function start() {
+      fetch(BASE + "/start", { method: "POST" });
+      document.getElementById("msg").innerText = "Bot started";
+    }
+
+    function stop() {
+      fetch(BASE + "/stop", { method: "POST" });
+      document.getElementById("msg").innerText = "Bot stopped";
+    }
+  </script>
+
+</body>
+</html>
