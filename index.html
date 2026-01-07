@@ -1,80 +1,39 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Trading Bot</title>
-  <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      background: #f5f5f5;
-    }
-    button {
-      padding: 10px 15px;
-      margin: 5px;
-      font-size: 16px;
-    }
-    select {
-      padding: 8px;
-      font-size: 16px;
-    }
-    table {
-      margin: auto;
-      border-collapse: collapse;
-      width: 80%;
-      background: white;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-    }
-    th {
-      background: #222;
-      color: white;
-    }
-  </style>
-</head>
-
-<body>
-
-  <h1>🤖 Trading Bot Control Panel</h1>
-
-  <h3>Select Market</h3>
-  <select id="market">
-    <option value="India">India</option>
-    <option value="Taiwan">Taiwan</option>
-  </select>
-
-  <br><br>
-
-  <button onclick="startBot()">Start Bot</button>
-  <button onclick="stopBot()">Stop Bot</button>
-  <button onclick="loadTrades()">Show Trades</button>
-
-  <p id="msg"></p>
-
-  <h2>📊 Paper Trades</h2>
-  <table id="tradeTable">
-    <thead>
-      <tr>
-        <th>Time</th>
-        <th>Symbol</th>
-        <th>Price</th>
-        <th>Qty</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
 <script>
   const BASE = "https://trading-bot-backend-47q9.onrender.com";
 
   function startBot() {
     const market = document.getElementById("market").value;
-    fetch(`${BASE}/start/${market}`, { method: "POST" })
+    fetch(`${BASE}/start/${market}`)
       .then(r => r.json())
-      .then(d => document.getElementById("msg").innerText = d.status);
+      .then(d => document.getElementById("msg").innerText = d.status)
+      .catch(e => alert("Start bot failed"));
   }
 
   function stopBot() {
-    fetch(
+    fetch(`${BASE}/stop`)
+      .then(r => r.json())
+      .then(d => document.getElementById("msg").innerText = d.status)
+      .catch(e => alert("Stop bot failed"));
+  }
+
+  function loadTrades() {
+    fetch(`${BASE}/trades`)
+      .then(r => r.json())
+      .then(data => {
+        const tbody = document.querySelector("#tradeTable tbody");
+        tbody.innerHTML = "";
+        data.forEach(t => {
+          const row = `
+            <tr>
+              <td>${t.time}</td>
+              <td>${t.symbol}</td>
+              <td>${t.price}</td>
+              <td>${t.qty}</td>
+              <td>${t.status}</td>
+            </tr>`;
+          tbody.innerHTML += row;
+        });
+      })
+      .catch(e => alert("Load trades failed"));
+  }
+</script>
