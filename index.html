@@ -1,134 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
   <title>Trading Bot</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      text-align: center;
-      padding: 20px;
-    }
-    h1 {
-      margin-bottom: 10px;
-    }
-    button, select {
-      padding: 10px 15px;
-      margin: 5px;
-      font-size: 16px;
-    }
-    table {
-      margin: 20px auto;
-      border-collapse: collapse;
-      width: 90%;
-      background: white;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-    }
-    th {
-      background: #222;
-      color: white;
-    }
-    #msg {
-      margin-top: 10px;
-      font-weight: bold;
-    }
+    body { font-family: Arial; text-align: center; background: #f5f5f5; }
+    button, select { padding: 10px; margin: 5px; font-size: 16px; }
+    table { margin: auto; width: 80%; border-collapse: collapse; background: white; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #222; color: white; }
   </style>
 </head>
-
 <body>
 
-  <h1>🤖 Trading Bot Control Panel</h1>
+<h1>🤖 Trading Bot</h1>
 
-  <div>
-    <label for="market"><b>Select Market:</b></label>
-    <select id="market">
-      <option value="India">India</option>
-      <option value="Taiwan">Taiwan</option>
-    </select>
-  </div>
+<select id="market">
+  <option value="India">India</option>
+  <option value="Taiwan">Taiwan</option>
+</select>
 
-  <br />
+<br><br>
 
-  <div>
-    <button onclick="startBot()">Start Bot</button>
-    <button onclick="stopBot()">Stop Bot</button>
-    <button onclick="loadTrades()">Show Trades</button>
-  </div>
+<button onclick="startBot()">Start Bot</button>
+<button onclick="stopBot()">Stop Bot</button>
+<button onclick="loadTrades()">Show Trades</button>
 
-  <p id="msg"></p>
+<p id="msg"></p>
 
-  <h2>📊 Paper Trades</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Time</th>
+      <th>Symbol</th>
+      <th>Price</th>
+      <th>Qty</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Time</th>
-        <th>Symbol</th>
-        <th>Price</th>
-        <th>Qty</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody id="tradeBody"></tbody>
-  </table>
+<script>
+const BASE = "https://trading-bot-backend-47q9.onrender.com";
 
-  <script>
-    const BASE = "https://trading-bot-backend-47q9.onrender.com";
+function startBot() {
+  const m = market.value;
+  fetch(`${BASE}/start/${m}`)
+    .then(r => r.json())
+    .then(d => msg.innerText = d.status);
+}
 
-    function startBot() {
-      const market = document.getElementById("market").value;
-      fetch(`${BASE}/start/${market}`)
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById("msg").innerText = data.status;
-        })
-        .catch(err => {
-          alert("Start bot failed");
-          console.error(err);
-        });
-    }
+function stopBot() {
+  const m = market.value;
+  fetch(`${BASE}/stop/${m}`, { method: "POST" })
+    .then(r => r.json())
+    .then(d => msg.innerText = d.status);
+}
 
-    function stopBot() {
-      fetch(`${BASE}/stop`)
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById("msg").innerText = data.status;
-        })
-        .catch(err => {
-          alert("Stop bot failed");
-          console.error(err);
-        });
-    }
-
-    function loadTrades() {
-      fetch(`${BASE}/trades`)
-        .then(res => res.json())
-        .then(data => {
-          const body = document.getElementById("tradeBody");
-          body.innerHTML = "";
-          data.forEach(t => {
-            const row = `
-              <tr>
-                <td>${t.time}</td>
-                <td>${t.symbol}</td>
-                <td>${t.price}</td>
-                <td>${t.qty}</td>
-                <td>${t.status}</td>
-              </tr>`;
-            body.innerHTML += row;
-          });
-        })
-        .catch(err => {
-          alert("Load trades failed");
-          console.error(err);
-        });
-    }
-  </script>
+function loadTrades() {
+  const m = market.value;
+  fetch(`${BASE}/trades/${m}`)
+    .then(r => r.json())
+    .then(data => {
+      tbody.innerHTML = "";
+      data.forEach(t => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${t.time}</td>
+            <td>${t.symbol}</td>
+            <td>${t.price}</td>
+            <td>${t.qty}</td>
+            <td>${t.status}</td>
+          </tr>`;
+      });
+    });
+}
+</script>
 
 </body>
 </html>
